@@ -1,0 +1,115 @@
+
+#Imports the package
+import pygame 
+import math 
+from math import sin, cos, pi
+import random 
+from random import randint, uniform
+
+pygame.init()
+
+#Colours the screen, (red, green, blue)
+screen_colour = ("Blue3")
+
+#Variable's hold the respective screen sizes (width and height)
+(width, height) = (500, 500) 
+
+#Create a class that contains circle particles in it that can be created through the use of a method
+class Circle:
+    def __init__(self, position, size, colour, thickness):
+        self.x, self.y = position 
+        self.size = size
+        self.c1, self.c2, self.c3 = colour
+        self.thickness = thickness
+        self.speed = 0
+        self.angle = 0
+
+    #Creates a method that prints the particle using all of the particle parameters 
+    def circle_print(self):
+        pygame.draw.circle(screen,(self.c1,self.c2,self.c3),(int(self.x), int(self.y)),self.size,self.thickness)
+    
+    #Creates a method that moves the particles at a specific speed and angle
+    def movement(self):
+        self.x += sin(self.angle) * self.speed
+        #To go down we use -+ as we start at the top left of the screen
+        self.y -= cos(self.angle) * self.speed
+    
+    
+    #Keeps the circle in the bounds of the screen size
+    def bounce(self):
+        top_vertical_boundary = self.x > (width - self.size)
+        bottom_vertical_boundary = self.x < self.size
+        left_horizontal_boundary = self.y > height - self.size
+        right_horizontal_boundary = self.y < self.size
+        if top_vertical_boundary:
+            #Its new position will be the (width of the screen - the circles size) - the distance the circle has traveled past the width 
+            self.x = 2 * (width - self.size) - self.x
+            #vertical boundary has angle of 0 therefore we subtract the 0 from 0 which doesn't give the circle an angular trajectory when it comes in contact with the vertical boundary 
+            self.angle = - self.angle
+        elif bottom_vertical_boundary:
+            self.x = 2 * self.size - self.x
+            self.angle = - self.angle
+        if left_horizontal_boundary:
+            self.y = 2 * (height - self.size) - self.y
+            self.angle = pi - self.angle
+        elif right_horizontal_boundary:
+            self.y = 2 * self.size - self.y
+            self.angle = pi - self.angle
+
+#Initializes the screen size
+screen = pygame.display.set_mode((width, height))
+
+#Changes the window caption at the top of the screen
+pygame.display.set_caption("Vicky Sekhon")
+
+number_of_circle = int(input("Enter the number of circles you'd like to make: "))
+my_circles = []
+
+for i in range(number_of_circle):
+    size = randint(0,100)
+    x = randint(0,500)
+    y = randint(0,500)
+    c1 = randint(0,255)
+    c2 = randint(0,255)
+    c3 = randint(0,255)
+    thickness = randint(0,250)
+    circle = Circle((x,y), size, (c1,c2,c3), thickness)
+    circle.speed = uniform(0,1)
+    #pi x 2 allows us to access all the angles (360 degrees)
+    circle.angle = uniform(0, pi*2)
+    
+    my_circles.append(circle)
+
+#Creates a condition to power while loop
+running = True 
+
+#While the variable running is "True"
+while running == True:
+    
+    #Monitor user "events" (what the user inputs)
+    for i in pygame.event.get():
+        
+        #if the pygame.event matches pygame.QUIT (The quit event)
+        if i.type == pygame.QUIT:
+            
+            #Then the loop fails as running becomes "False" 
+            running = False
+
+    #Uses the colours and fills the screen using the .fill() function
+    screen.fill(screen_colour)
+    
+    #References each object in the list my_circles
+    for c in my_circles:
+        
+        #uses the movement method to move the object 
+        c.movement()
+        
+        #Uses bounce method to bounce the object back from the boundary
+        c.bounce()
+        
+        #uses the circle_print method to draw the circle to the screen
+        c.circle_print()
+
+    
+    #Runs the screen (equivalent of print)
+    pygame.display.flip()
